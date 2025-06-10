@@ -9,6 +9,6 @@ Vagrant.configure(2) do |config|
     docker.vm.network "forwarded_port", guest: 443, host: 443
     docker.vm.network "forwarded_port", guest: 3000, host: 3000
     docker.vm.network "forwarded_port", guest: 3000, host: 3000
-    docker.vm.network "forwarded_port", guest: 6379, host:6379 
+    docker.vm.network "forwarded_port", guest: 6379, host: 6379 
   end
 end
