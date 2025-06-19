@@ -1,0 +1,46 @@
+services:
+  db:
+    image: mariadb:lts # Using the latest LTS version of MariaDB
+    environment: # Environment variables for database configuration
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wpuser
+      MYSQL_PASSWORD: example
+    volumes: # Mounting a named volume for persistent storage
+      - db_data:/var/lib/mysql
+    ports: # Exposing port 80 for HTTP traffic
+      - "3306:3306" # Exposing MySQL port
+    deploy:
+      replicas: 4 # Ensuring only one replica of the database service
+      restart_policy:
+        condition: on-failure # Restart on failure
+      placement:
+        constraints: [node.role == worker] # Ensure the database runs on a worker node
+        #constraints: [node.labels.role == worker] # Ensure the database runs on a worker node
+  
+  wordpress:
+    image: wordpress:latest # Using the latest version of WordPress
+    depends_on: # Ensuring the WordPress service starts after the database service
+      - db
+    environment: # Environment variables for WordPress configuration
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wpuser
+      WORDPRESS_DB_PASSWORD: example
+      WORDPRESS_DB_NAME: wordpress
+    volumes: # Mounting a named volume for persistent storage
+      - wordpress_data:/var/www/html
+    ports: # Exposing ports
+      - "80:80" # Exposing HTTP port
+      - "443:443" # Exposing HTTPS port
+    deploy:
+      replicas: 4 # Ensuring only one replica of the WordPress service
+      restart_policy:
+        condition: on-failure # Restart on failure
+      placement:
+        constraints: [node.role == worker] # Ensure the WordPress runs on a worker node
+
+volumes:
+  db_data: # Named volume for database data
+    driver: local
+  wordpress_data: # Named volume for WordPress data
+    driver: local
